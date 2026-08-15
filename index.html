@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Word Explorer</title>
 <!--
-  WORD EXPLORER v6 - single-file offline English app for Howie and Alisa.
+  WORD EXPLORER v6 - single-file offline English app for Francis and Alisa.
   Works on iPad, iPhone, and desktop/laptop (mouse + keyboard: 1/2/3 to answer,
   Space to replay audio, Enter to continue, Escape to close).
   "Add to Home Screen" makes it open full-screen like a real app.
@@ -507,6 +507,386 @@ button:focus-visible,select:focus-visible,.setCard:focus-visible{
 /* result message from the Test sound button (only shown after pressing it) */
 .soundMsg{background:#FFF3CD;border:3px solid #F1C40F;border-radius:14px;
   padding:12px 14px;font-size:14px;line-height:1.5;color:#5c4400}
+
+
+/* =========================================================================
+   WORD EXPLORER v7 — RESPONSIVE VISUAL REFRESH
+   Keeps the original learning logic; improves hierarchy, touch ergonomics,
+   safe-area handling, and desktop / iPad / phone layouts.
+========================================================================= */
+:root{
+  --font:'Avenir Next','Trebuchet MS','Segoe UI',system-ui,-apple-system,sans-serif;
+  --surface:rgba(255,255,255,.94);
+  --surface-solid:#fff;
+  --ink:#17304F;
+  --ink-soft:#667892;
+  --line:rgba(23,48,79,.10);
+  --shadow:0 18px 44px rgba(38,58,88,.11);
+  --shadow-sm:0 7px 18px rgba(38,58,88,.10);
+  --radius-xl:30px;
+  --radius-lg:24px;
+  --radius-md:18px;
+  --content:1180px;
+}
+[data-theme="train"]{
+  --bg-top:#F4F8FC;--bg-bot:#E4EEF7;--primary:#E94338;--secondary:#FFD45C;
+}
+[data-theme="animal"]{
+  --bg-top:#FFF7FB;--bg-bot:#F9EAF3;--primary:#F76F9B;--secondary:#C7AEFF;
+}
+html{min-height:100%;background:var(--bg-bot)}
+body{
+  min-height:100%;min-height:100svh;overflow-x:hidden;overflow-y:auto;
+  background:
+    radial-gradient(circle at 8% 12%,rgba(255,255,255,.78) 0 7%,transparent 7.2%),
+    radial-gradient(circle at 92% 18%,rgba(255,255,255,.58) 0 6%,transparent 6.2%),
+    linear-gradient(180deg,var(--bg-top) 0%,var(--bg-bot) 100%);
+  background-attachment:fixed;
+  letter-spacing:.005em;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.28;
+  background-image:radial-gradient(rgba(30,62,96,.14) 1px,transparent 1px);
+  background-size:28px 28px;
+  mask-image:linear-gradient(to bottom,black,transparent 72%);
+}
+#app{max-width:none;min-height:100svh;padding-bottom:max(env(safe-area-inset-bottom),12px)}
+
+.topbar{
+  padding:max(10px,env(safe-area-inset-top)) clamp(14px,3vw,34px) 10px;
+  background:rgba(246,250,253,.74);border-bottom:1px solid rgba(255,255,255,.65);
+  backdrop-filter:blur(18px) saturate(1.25);-webkit-backdrop-filter:blur(18px) saturate(1.25);
+}
+[data-theme="animal"] .topbar{background:rgba(255,248,252,.78)}
+.topRow{max-width:var(--content);margin:0 auto;min-height:54px}
+.topTitle{font-size:clamp(18px,2.1vw,22px);font-weight:800;letter-spacing:-.01em}
+.iconBtn{
+  width:48px;height:48px;padding:12px;background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.85);
+  box-shadow:0 5px 16px rgba(35,55,85,.09);transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+}
+
+.screen{
+  width:min(100%,var(--content));margin:0 auto;
+  padding:clamp(14px,2.6vw,30px) clamp(16px,4vw,46px) clamp(30px,5vw,58px);
+  gap:clamp(14px,2vw,22px);
+}
+h1{font-size:clamp(28px,4vw,42px);line-height:1.08;letter-spacing:-.035em;margin:4px 0}
+h2{font-size:clamp(22px,3vw,30px);letter-spacing:-.02em}
+.bigTitle{font-size:clamp(38px,7vw,64px);line-height:1;letter-spacing:-.055em}
+p.sub,.sub{font-size:clamp(14px,1.7vw,17px);line-height:1.45}
+.card,.qCard,.pBlock,.mascotBanner,.gameCard,.profileCard{border:1px solid rgba(255,255,255,.88)}
+
+.btn{
+  min-height:58px;border-radius:17px;font-size:clamp(17px,2vw,20px);font-weight:800;
+  box-shadow:0 6px 16px rgba(38,58,88,.11);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease;
+}
+.btn-primary{box-shadow:0 8px 20px color-mix(in srgb,var(--primary) 24%,transparent)}
+.btn-secondary{background:rgba(255,255,255,.9);border:2px solid rgba(23,48,79,.09)}
+.btn.small{min-height:48px}
+
+/* Profile selection */
+.pickerScreen{min-height:0;flex:1;justify-content:center;padding-top:clamp(18px,4vh,42px);padding-bottom:clamp(24px,5vh,52px)}
+.pickerScreen::before{
+  content:'ABC';display:grid;place-items:center;width:88px;height:54px;border-radius:18px;
+  margin-bottom:4px;font-size:27px;font-weight:900;letter-spacing:5px;color:var(--primary);
+  background:rgba(255,255,255,.8);box-shadow:var(--shadow-sm);transform:rotate(-3deg)
+}
+.profileGrid{max-width:760px;gap:clamp(14px,3vw,28px);margin-top:clamp(12px,2vw,22px)}
+.profileCard{
+  min-height:250px;padding:clamp(18px,3vw,28px);border-radius:var(--radius-xl);border-width:2px;
+  box-shadow:var(--shadow);transition:transform .18s ease,box-shadow .18s ease;
+  justify-content:center;
+}
+.profileCard.little{background:linear-gradient(160deg,#fff 42%,#FFF2DB);border-color:rgba(233,67,56,.17)}
+.profileCard.big{background:linear-gradient(160deg,#fff 42%,#FCE9F4);border-color:rgba(247,111,155,.18)}
+.profileCard svg{width:clamp(126px,20vw,188px);height:clamp(100px,16vw,150px)}
+.pName{font-size:clamp(20px,2.4vw,25px);font-weight:900}
+
+/* Home dashboard */
+.homeScreen{align-content:start}
+.mascotBanner{
+  min-height:126px;border-radius:var(--radius-xl);padding:clamp(18px,3vw,28px);
+  background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(255,255,255,.82));
+  box-shadow:var(--shadow);overflow:hidden;position:relative;
+}
+.mascotBanner::after{
+  content:'';position:absolute;right:-45px;top:-60px;width:190px;height:190px;border-radius:50%;
+  background:var(--secondary);opacity:.16;pointer-events:none
+}
+.mascotBanner svg{width:clamp(94px,13vw,132px);height:clamp(74px,10vw,104px);z-index:1}
+.bannerBig{font-size:clamp(23px,3vw,31px);line-height:1.15;font-weight:900;letter-spacing:-.025em}
+.gameCard{
+  position:relative;min-height:132px;border-radius:var(--radius-lg);padding:20px;
+  border-left:0;border-top:7px solid var(--primary);box-shadow:var(--shadow-sm);
+  transition:transform .16s ease,box-shadow .16s ease;border-color .16s ease;
+  overflow:hidden;
+}
+.gameCard.sentence{border-top-color:var(--secondary)}
+.gameCard.fill{border-top-color:var(--success)}
+.gameIcon{width:64px;height:64px;border-radius:19px;padding:12px;background:linear-gradient(145deg,var(--bg-top),#fff);box-shadow:inset 0 0 0 1px rgba(23,48,79,.05)}
+.gameName{font-size:clamp(20px,2.3vw,25px);font-weight:900;letter-spacing:-.02em}
+.gameHint{font-size:14px;line-height:1.35;margin-top:3px}
+.gameMeta{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:700;margin-top:8px}
+.gameProgress{height:7px;border-radius:999px;background:rgba(23,48,79,.08);overflow:hidden;margin-top:13px}
+.gameProgress span{display:block;height:100%;border-radius:inherit;background:var(--primary)}
+.gameCard.sentence .gameProgress span{background:#D5A900}
+.gameCard.fill .gameProgress span{background:var(--success)}
+.gameGo{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--bg-top);font-size:22px;font-weight:900;flex:0 0 auto}
+
+/* Set picker */
+.setsScreen>.sub{max-width:760px;margin:0 auto 4px}
+.setGrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:clamp(12px,1.7vw,18px)}
+.setSection{padding-top:20px;font-size:16px;border-bottom:0;display:flex;align-items:center;gap:10px}
+.setSection::after{content:'';height:2px;background:var(--line);flex:1;border-radius:99px}
+.setCard{
+  min-height:136px;padding:18px 14px 15px;border-radius:21px;border:2px solid transparent;box-shadow:0 7px 18px rgba(38,58,88,.08);
+  display:flex;flex-direction:column;justify-content:center;
+}
+.setCard.played{border-color:rgba(30,142,90,.18);background:linear-gradient(180deg,#fff,#FAFFFC)}
+.setNum{top:11px;left:13px;font-size:12px;background:var(--bg-top);padding:4px 8px;border-radius:999px}
+.setName{font-size:17px;line-height:1.2;margin:16px 0 9px}
+.setBest{font-size:12px}
+
+/* Journey */
+.journeyWrap{width:min(100%,var(--content));margin:0 auto;padding:8px clamp(20px,5vw,54px) 0}
+.jHead{font-size:12px;margin-bottom:6px}
+.jTrack{height:11px;margin:20px 28px 22px;background:rgba(23,48,79,.09)}
+.jDot{width:11px;height:11px;border-width:2px}
+.jMascot{width:58px;height:46px;top:-23px}
+
+/* Question stage */
+.playScreen{align-items:center;padding-top:16px}
+.playScreen>.qCard{width:min(100%,940px)}
+.qCard{
+  border-radius:32px;padding:clamp(22px,4vw,38px);gap:clamp(15px,2.4vw,24px);
+  box-shadow:0 20px 50px rgba(38,58,88,.12);background:rgba(255,255,255,.96)
+}
+.qCard.phonicsCard,.qCard.sentCard{border-width:3px}
+.qCard.fillCard{border-width:3px}
+.qLabel{font-size:clamp(19px,2.4vw,25px);line-height:1.3;font-weight:900;letter-spacing:-.015em}
+.picRound{width:clamp(124px,17vw,172px);height:clamp(124px,17vw,172px);padding:clamp(18px,2.6vw,25px);background:linear-gradient(145deg,var(--bg-top),#fff)}
+.speakBtn{width:70px;height:70px;padding:19px;box-shadow:0 8px 20px rgba(38,58,88,.12)}
+.speakBtn.big{width:98px;height:98px;padding:27px}
+.wordSlots{gap:clamp(7px,1.6vw,13px);max-width:100%;justify-content:center}
+.slot{min-width:clamp(70px,11vw,104px);height:clamp(74px,11vw,104px);font-size:clamp(34px,6vw,52px);border-radius:20px}
+.bubbleRow,.wordRow,.cardRow,.tileRow{gap:clamp(10px,2vw,18px)}
+.bubble{width:clamp(80px,11vw,112px);height:clamp(80px,11vw,112px);font-size:clamp(31px,4.2vw,42px);animation-duration:4.6s}
+.wordBtn{min-height:82px;flex:1 1 150px;font-size:clamp(25px,3.6vw,32px);border-radius:19px}
+.wordCard{min-height:76px;flex:1 1 150px;font-size:clamp(23px,3vw,29px)}
+.sentenceStrip{font-size:clamp(23px,4vw,34px);line-height:1.55}
+.gap{min-width:clamp(86px,15vw,125px);border-bottom-width:5px}
+.buildStrip{min-height:92px;padding:14px;border-radius:20px}
+.slotWord,.tile{font-size:clamp(20px,2.8vw,27px)}
+.tile{min-height:62px;padding:10px 18px}
+.kbdHint{box-shadow:none;border:1px solid var(--line);background:rgba(255,255,255,.64)}
+
+/* Results */
+.resultScreen{max-width:760px;justify-content:flex-start;padding-top:clamp(28px,6vh,62px)}
+.resultScreen h1{text-align:center}
+.mascotBig{width:clamp(160px,26vw,220px);height:clamp(128px,20vw,174px)}
+.starRow svg{width:clamp(54px,9vw,72px);height:clamp(54px,9vw,72px)}
+.scoreLine{font-size:clamp(18px,2.4vw,22px)}
+.routeDone,.ticketSoon{width:100%;border:1px solid var(--line)}
+.ticketWon{width:100%}
+
+/* Progress */
+.progressScreen{max-width:1120px}
+.cheerCard{border-width:2px;border-radius:28px;padding:clamp(17px,3vw,25px);box-shadow:var(--shadow)}
+.cheerBig{font-size:clamp(20px,2.6vw,28px)}
+.statPill{padding:7px 12px;background:rgba(255,255,255,.78);font-size:13px}
+.bigBar{height:28px;box-shadow:inset 0 1px 3px rgba(0,0,0,.06)}
+.pBlock{border-radius:24px;padding:clamp(16px,2.5vw,24px);box-shadow:0 8px 22px rgba(38,58,88,.08)}
+.pTitle{font-size:20px}
+.pGrid{grid-template-columns:repeat(10,minmax(42px,1fr));gap:8px}
+.pCell{min-width:0;border-radius:13px}
+.badge{border-radius:16px}
+
+/* Menu */
+.menuOverlay{background:rgba(22,31,46,.42);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.menuSheet{max-width:640px;max-height:min(88svh,780px);overflow:auto;border-radius:30px 30px 0 0;padding-top:12px;box-shadow:0 -20px 60px rgba(15,25,40,.22)}
+.sheetHandle{width:46px;height:5px;border-radius:999px;background:rgba(23,48,79,.16);margin:0 auto 4px}
+.voicePick{border:1px solid var(--line)}
+
+.soundBanner{width:min(calc(100% - 30px),720px);margin:8px auto 0;padding:10px 14px;border-width:2px;font-size:14px;box-shadow:0 5px 14px rgba(74,54,0,.07)}
+
+/* Tablet / small desktop: turn the home into a true dashboard. */
+@media (min-width:720px){
+  .homeScreen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+  .homeScreen>.mascotBanner,.homeScreen>.btn-wide{grid-column:1/-1}
+  .homeScreen>.gameCard{height:100%;min-height:245px;flex-direction:column;align-items:flex-start;gap:13px;padding:22px}
+  .homeScreen>.gameCard .gameText{width:100%}
+  .homeScreen>.gameCard .gameGo{position:absolute;top:21px;right:18px}
+  .homeScreen>.gameCard .gameIcon{width:70px;height:70px}
+  .homeScreen>.gameCard .gameMeta{margin-top:10px}
+  .setGrid{grid-template-columns:repeat(auto-fill,minmax(175px,1fr))}
+}
+
+/* Desktop: use width, don't merely scale the mobile stack. */
+@media (min-width:1024px){
+  :root{--content:1240px}
+  .screen{padding-left:54px;padding-right:54px}
+  .homeScreen>.gameCard{min-height:270px;padding:26px}
+  .homeScreen>.gameCard .gameIcon{width:78px;height:78px;padding:14px}
+  .gameHint{font-size:15px}
+  .setGrid{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .playScreen>.qCard{min-height:430px;justify-content:center}
+  .soundBuildCard{
+    display:grid;grid-template-columns:minmax(160px,210px) minmax(0,1fr);
+    grid-template-areas:'label label' 'pic slots' 'pic speaker' 'answers answers';
+    column-gap:42px;row-gap:16px;align-items:center;
+  }
+  .soundBuildCard>.qLabel{grid-area:label}
+  .soundBuildCard>.picRound{grid-area:pic;justify-self:center}
+  .soundBuildCard>.wordSlots{grid-area:slots;justify-self:center}
+  .soundBuildCard>.speakBtn{grid-area:speaker;justify-self:center}
+  .soundBuildCard>.bubbleRow{grid-area:answers;justify-self:center}
+  .pGrid{grid-template-columns:repeat(10,1fr)}
+  .menuOverlay{align-items:center;padding:30px}
+  .menuSheet{border-radius:30px;padding:18px 24px 24px}
+  .sheetHandle{display:none}
+}
+
+/* Phones */
+@media (max-width:600px){
+  body{background-attachment:scroll}
+  .topbar{padding-left:12px;padding-right:12px;padding-bottom:7px}
+  .topRow{min-height:50px}
+  .iconBtn{width:44px;height:44px;padding:11px}
+  .screen{padding:14px 14px 34px;gap:13px}
+  .pickerScreen{padding-top:18px;padding-bottom:28px}
+  .pickerScreen::before{width:70px;height:46px;font-size:22px}
+  .profileGrid{gap:12px}
+  .profileCard{min-height:205px;border-radius:24px;padding:16px 8px}
+  .profileCard svg{width:112px;height:90px}
+  .mascotBanner{padding:15px 16px;min-height:108px}
+  .mascotBanner svg{width:78px;height:64px}
+  .gameCard{min-height:124px;padding:17px 15px;gap:13px;border-top-width:6px}
+  .gameIcon{width:56px;height:56px;padding:10px}
+  .gameName{font-size:20px}
+  .gameHint{font-size:13px}
+  .gameGo{width:34px;height:34px;font-size:19px}
+  .setGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .setCard{min-height:123px;padding:15px 10px 12px}
+  .setName{font-size:15px;min-height:38px}
+  .journeyWrap{padding:5px 18px 0}
+  .jHead{font-size:11px;gap:6px}
+  .jLine{width:15px;height:5px}
+  .jTrack{margin:18px 20px 18px}
+  .jMascot{width:50px;height:40px;top:-19px}
+  .playScreen{padding-top:10px}
+  .qCard{border-radius:25px;padding:20px 14px;gap:14px}
+  .qLabel{font-size:18px}
+  .picRound{width:118px;height:118px;padding:18px}
+  .speakBtn{width:62px;height:62px;padding:17px}
+  .speakBtn.big{width:84px;height:84px;padding:23px}
+  .slot{min-width:68px;height:72px;font-size:33px;border-width:4px;border-radius:17px}
+  .rimeSlot{padding:0 13px}
+  .bubble{width:78px;height:78px;font-size:30px;border-width:3px}
+  .wordBtn{min-height:70px;flex-basis:110px;font-size:24px}
+  .wordCard{min-height:66px;flex-basis:105px;font-size:22px}
+  .sentenceStrip{font-size:22px;line-height:1.5}
+  .buildStrip{min-height:82px;padding:10px}
+  .slotWord{padding:7px 11px;font-size:20px}
+  .emptySlot{width:48px;height:38px}
+  .tile{font-size:20px;min-height:56px;padding:9px 14px}
+  .btnRow{gap:9px;flex-direction:column}
+  .btnRow .btn{width:100%}
+  .pGrid{grid-template-columns:repeat(5,1fr);gap:7px}
+  .badgeRow{gap:9px}
+  .menuSheet{gap:10px}
+}
+
+/* Very narrow phones: keep two profiles but avoid overflow. */
+@media (max-width:370px){
+  .bigTitle{font-size:34px}
+  .profileCard{min-height:185px}
+  .profileCard svg{width:94px;height:78px}
+  .pName{font-size:18px}
+  .gameCard{gap:10px;padding:15px 12px}
+  .gameIcon{width:50px;height:50px;flex-basis:50px}
+  .gameHint{display:none}
+  .setGrid{gap:8px}
+  .bubbleRow{gap:8px}
+  .bubble{width:70px;height:70px;font-size:27px}
+  .slot{min-width:60px;height:66px;font-size:29px}
+}
+
+/* iPad / phone landscape: protect vertical space. */
+@media (max-height:560px) and (orientation:landscape){
+  .topbar{position:relative;padding-top:8px}
+  .journeyWrap{padding-top:2px}
+  .jTrack{margin-top:14px;margin-bottom:13px}
+  .playScreen{padding-top:6px;padding-bottom:18px}
+  .qCard{padding-top:16px;padding-bottom:16px;gap:10px}
+  .picRound{width:92px;height:92px;padding:14px}
+  .speakBtn{width:54px;height:54px;padding:15px}
+  .speakBtn.big{width:70px;height:70px;padding:19px}
+  .bubble{width:64px;height:64px;font-size:25px}
+  .slot{height:62px;min-width:60px;font-size:29px}
+  .travelStage{height:95px}
+  .travelMascot{height:82px;width:110px}
+}
+
+@supports not (color:color-mix(in srgb,white,black)){
+  .btn-primary{box-shadow:0 8px 20px rgba(38,58,88,.16)}
+}
+
+
+
+/* =============================================================
+   PLAYFUL FUN PASS - make it feel more like a kids' game world
+============================================================= */
+:root{--fun-pink:#FF7EB6;--fun-yellow:#FFD84D;--fun-blue:#7ACBFF;--fun-lilac:#C4A6FF;--fun-green:#8EE2A8;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.48;
+  background:
+    radial-gradient(circle at 14% 22%,rgba(255,255,255,.85) 0 18px,transparent 19px),
+    radial-gradient(circle at 82% 16%,rgba(255,255,255,.7) 0 14px,transparent 15px),
+    radial-gradient(circle at 86% 72%,rgba(255,255,255,.62) 0 12px,transparent 13px),
+    radial-gradient(circle at 18% 80%,rgba(255,255,255,.6) 0 10px,transparent 11px),
+    linear-gradient(transparent,transparent);
+  animation:skyTwinkle 9s ease-in-out infinite;
+}
+@keyframes skyTwinkle{0%,100%{transform:translateY(0);opacity:.46}50%{transform:translateY(-8px);opacity:.62}}
+.funCloudRow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:4px}
+.funCloud{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.86);border:2px solid rgba(255,255,255,.9);box-shadow:0 8px 18px rgba(38,58,88,.09);font-size:14px;font-weight:800;color:var(--ink)}
+.funCloud b{color:var(--primary)}
+.pickHintCard{width:min(100%,760px);padding:16px 18px;border-radius:24px;text-align:center;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(255,255,255,.82));box-shadow:var(--shadow-sm);border:1px solid rgba(255,255,255,.92)}
+.pickHintBig{font-size:22px;font-weight:900;letter-spacing:-.02em;margin-bottom:6px}
+.pickHintSub{font-size:15px;color:var(--ink-soft);line-height:1.5}
+.profileCard{position:relative;overflow:hidden}
+.profileCard::after{content:'';position:absolute;inset:auto -20px -34px auto;width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.36);pointer-events:none}
+.profileCard::before{content:'★';position:absolute;top:16px;right:18px;font-size:22px;line-height:1;color:#fff8;text-shadow:0 2px 8px rgba(0,0,0,.08)}
+.mascotBanner{position:relative;overflow:hidden}
+.mascotBanner::before{content:'';position:absolute;left:-30px;bottom:-42px;width:190px;height:110px;border-radius:50%;background:rgba(255,255,255,.34);pointer-events:none}
+.bannerBig small{display:block;font-size:.58em;letter-spacing:.02em;color:var(--ink-soft);margin-top:8px;font-weight:800}
+.heroStats{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.heroStat{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.9);box-shadow:0 6px 14px rgba(38,58,88,.08);font-size:13px;font-weight:900}
+.heroStat svg{width:18px;height:18px}.heroStat.ticketReady{background:linear-gradient(135deg,#FFF7CC,#FFE894);color:#735500}
+.gameCard{background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.9));overflow:hidden}
+.gameCard::before{content:'';position:absolute;top:-30px;right:-30px;width:110px;height:110px;border-radius:50%;background:color-mix(in srgb,var(--secondary) 42%,white);opacity:.6;pointer-events:none}
+.gameCard::after{content:'';position:absolute;inset:auto auto 0 0;width:100%;height:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--primary) 72%,white),color-mix(in srgb,var(--secondary) 82%,white));opacity:.18;pointer-events:none}
+.gameCard.phonics{background:linear-gradient(160deg,#fff 0%,#FFF9D9 100%)}.gameCard.sentence{background:linear-gradient(160deg,#fff 0%,#F8F0FF 100%)}.gameCard.fill{background:linear-gradient(160deg,#fff 0%,#EFFFF6 100%)}
+.gameCard .gameName small{display:block;font-size:.56em;color:var(--ink-soft);font-weight:800;letter-spacing:.02em;margin-top:6px}
+.gameFlavor{margin-top:10px;display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(23,48,79,.07);font-size:12px;font-weight:900;color:var(--ink-soft)}
+.gameFlavor b{color:var(--ink)}
+.homeBottomPrompt{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;border-radius:22px;padding:16px 18px;background:rgba(255,255,255,.74);border:1px dashed rgba(23,48,79,.12);color:var(--ink-soft);font-weight:800}
+.homeBottomPrompt b{color:var(--primary)}
+.setCard{overflow:hidden;position:relative;transform-origin:center}
+.setCard::before{content:'';position:absolute;inset:0 auto auto 0;width:100%;height:10px;opacity:.92;background:linear-gradient(90deg,var(--fun-yellow),var(--fun-pink),var(--fun-blue))}
+.setCard:nth-child(4n+1)::before{background:linear-gradient(90deg,#FFD84D,#FFB56B)}.setCard:nth-child(4n+2)::before{background:linear-gradient(90deg,#FF91B7,#FFC1D8)}.setCard:nth-child(4n+3)::before{background:linear-gradient(90deg,#87D2FF,#A7B6FF)}.setCard:nth-child(4n+4)::before{background:linear-gradient(90deg,#8EE2A8,#C8F19A)}
+.setCard:nth-child(5n+1){transform:rotate(-1deg)}.setCard:nth-child(5n+2){transform:rotate(.8deg)}.setCard:nth-child(5n+3){transform:rotate(-.6deg)}.setCard:nth-child(5n+4){transform:rotate(.6deg)}.setCard:nth-child(5n+5){transform:rotate(-.35deg)}
+.resultScreen::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.75;background:radial-gradient(circle at 18% 14%,rgba(255,216,77,.45) 0 18px,transparent 19px),radial-gradient(circle at 82% 16%,rgba(255,126,182,.34) 0 22px,transparent 23px),radial-gradient(circle at 74% 76%,rgba(122,203,255,.34) 0 20px,transparent 21px)}
+.resultCelebrate{width:100%;padding:18px 20px;border-radius:24px;position:relative;overflow:hidden;background:linear-gradient(135deg,#FFF6CB,#FFFDF0 48%,#FFE4F1);border:2px solid rgba(255,255,255,.94);box-shadow:0 12px 28px rgba(38,58,88,.11)}
+.resultCelebrate::after{content:'★';position:absolute;right:18px;top:14px;font-size:26px;color:#F0B600;opacity:.8}.resultCelebrate h3{margin:0 0 6px;font-size:22px}.resultCelebrate p{margin:0;color:var(--ink-soft);font-weight:700;line-height:1.5}
+.rewardPills{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%}.rewardPill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.94);font-size:13px;font-weight:900}.rewardPill svg{width:18px;height:18px}
+.progressScreen .badge.on{background:linear-gradient(180deg,#FFF6CC,#FFE794)}.progressScreen .badge.on .bLbl{color:#6A5100}
+.ticketCard.live{background:linear-gradient(135deg,#FFF7D2,#FFFCEC 48%,#FFE8F5)}.ticketCard.locked{background:linear-gradient(180deg,#fff,#FAFCFF)}
+.praiseBurst{position:fixed;left:50%;top:98px;transform:translateX(-50%) scale(.86);z-index:9999;padding:12px 18px;border-radius:999px;background:linear-gradient(135deg,#FFF7D2,#fff);color:var(--ink);box-shadow:0 16px 34px rgba(38,58,88,.18);font-weight:900;font-size:20px;border:2px solid rgba(255,255,255,.92);pointer-events:none;animation:praisePop 1.2s ease forwards}
+@keyframes praisePop{0%{opacity:0;transform:translateX(-50%) translateY(8px) scale(.72)}16%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.08)}74%{opacity:1;transform:translateX(-50%) translateY(-8px) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-24px) scale(.96)}}
+.confettiLayer{position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden}.confettiPiece{position:absolute;top:-22px;width:12px;height:18px;border-radius:4px;opacity:.95;animation:confettiDrop linear forwards}
+@keyframes confettiDrop{0%{transform:translate3d(0,-10px,0) rotate(0deg);opacity:1}100%{transform:translate3d(var(--dx),110vh,0) rotate(680deg);opacity:.05}}
+@media (hover:hover) and (pointer:fine){.profileCard:hover{transform:translateY(-6px) rotate(-.8deg);box-shadow:0 18px 40px rgba(38,58,88,.17)}.gameCard:hover{transform:translateY(-6px) rotate(-.6deg);box-shadow:0 18px 40px rgba(38,58,88,.16)}.setCard:hover{transform:translateY(-4px) scale(1.02) rotate(0deg);box-shadow:0 14px 28px rgba(38,58,88,.15)}}
+@media (max-width:720px){.heroStats{gap:8px}.heroStat{font-size:12px;padding:9px 11px}.gameFlavor{margin-top:8px}.pickHintCard{padding:14px 14px}.pickHintBig{font-size:20px}.resultCelebrate{padding:16px}.resultCelebrate h3{font-size:20px}}
+@media (prefers-reduced-motion:reduce){body::after,.bubble,.jMascot.moving,.travelMascot,.praiseBurst,.confettiPiece{animation:none !important}}
 
 </style>
 </head>
@@ -1220,7 +1600,7 @@ const PHONICS_EXTRA = [
 ========================================================================= */
 const CONFIG = {
   profiles: {
-    little: { id:'little', name:'Howie', theme:'train',  mascot:'ic-mascot-train' },
+    little: { id:'little', name:'Francis', theme:'train',  mascot:'ic-mascot-train' },
     big:    { id:'big',    name:'Alisa',   theme:'animal', mascot:'ic-mascot-princess' }
   },
   questionsPerRound: 10,
@@ -1762,6 +2142,7 @@ function answerChoice(value){
     if(q.type==='build'){ state.selectedOnset=value; }
     state.feedback='right';
     render();
+    setTimeout(()=>celebrateMoment(false), 60);
     if(q.type==='fill'){
       // read the WHOLE finished sentence, let it finish, then hold 2 seconds
       const full = q.sentence.replace('___', q.answer);
@@ -1834,6 +2215,39 @@ function closeTeaching(){
   setTimeout(()=>speakPrompt(), 300);
 }
 function dismissWrong(){ state.feedback=null; render(); setTimeout(()=>speakPrompt(),250); }
+const PRAISE_WORDS=['Yay!','Super!','Awesome!','Great job!','Brilliant!','Woohoo!','You did it!'];
+function celebrateMoment(big){
+  showPraise(big ? 'Hooray!' : PRAISE_WORDS[Math.floor(Math.random()*PRAISE_WORDS.length)]);
+  launchConfetti(big ? 34 : 18);
+}
+function showPraise(text){
+  const old=document.querySelector('.praiseBurst');
+  if(old) old.remove();
+  const el=document.createElement('div');
+  el.className='praiseBurst';
+  el.textContent=text;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1250);
+}
+function launchConfetti(count){
+  const layer=document.createElement('div');
+  layer.className='confettiLayer';
+  const colors=['#FFD84D','#FF7EB6','#7ACBFF','#8EE2A8','#C4A6FF','#FFA85C'];
+  for(let i=0;i<count;i++){
+    const p=document.createElement('span');
+    p.className='confettiPiece';
+    p.style.left=(Math.random()*100)+'vw';
+    p.style.background=colors[i%colors.length];
+    p.style.setProperty('--dx',((Math.random()*140)-70)+'px');
+    p.style.animationDuration=(1.8+Math.random()*1.4)+'s';
+    p.style.animationDelay=(Math.random()*.18)+'s';
+    p.style.width=(8+Math.random()*8)+'px';
+    p.style.height=(10+Math.random()*12)+'px';
+    layer.appendChild(p);
+  }
+  document.body.appendChild(layer);
+  setTimeout(()=>layer.remove(),3500);
+}
 
 /* ---- sentence builder ---- */
 function tapWordTile(id){
@@ -1847,6 +2261,7 @@ function tapWordTile(id){
       chime('success');
       if(state.firstTry) state.correctCount++;
       state.feedback='right'; render();
+      setTimeout(()=>celebrateMoment(false), 60);
       // read the finished sentence right through, then hold 2 seconds
       setTimeout(()=>speakThen(q.words.join(' '), 2000, ()=>travelToNext()), 250);
       return;
@@ -1907,6 +2322,7 @@ function finishRound(){
   state.awardedTicket = ticketsEarned() > before;
   saveData();
   state.screen='result'; chime('ticket'); render();
+  setTimeout(()=>celebrateMoment(true), 100);
   // spoken congratulations, matched to how well they did
   const cheers = {
     3:['Congratulations! You got them all right. Well done!',
@@ -1993,6 +2409,16 @@ function render(){
   }
   if(state.menuOpen) h+=viewMenu();
   app.innerHTML=h;
+
+  // Make card-style controls keyboard accessible on desktop without changing
+  // their existing click/touch behavior.
+  app.querySelectorAll('.profileCard,.gameCard,.setCard,.pCell,.soundBanner').forEach(el=>{
+    if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0');
+    if(!el.hasAttribute('role')) el.setAttribute('role','button');
+    el.addEventListener('keydown',ev=>{
+      if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); el.click(); }
+    });
+  });
 }
 
 function soundBanner(){
@@ -2010,36 +2436,54 @@ function topBar(title, backFn){
 
 /* ---------------- picker ---------------- */
 function viewPicker(){
-  return soundBanner()+'<div class="screen center">'+
+  return soundBanner()+'<div class="screen center pickerScreen">'+
     '<h1 class="bigTitle">Word Explorer</h1>'+
-    '<p class="sub">Tap your picture to play</p>'+
+    '<p class="sub">A fun reading adventure for little learners</p>'+
+    '<div class="funCloudRow">'+
+      '<span class="funCloud">⭐ <b>Collect stars</b></span>'+
+      '<span class="funCloud">🎟️ <b>Earn tickets</b></span>'+
+      '<span class="funCloud">🔊 <b>Listen and play</b></span>'+
+    '</div>'+
+    '<div class="pickHintCard"><div class="pickHintBig">Who is playing today?</div>'+
+      '<div class="pickHintSub">Tap your picture and jump into word games, listening games, and sentence adventures.</div></div>'+
     '<div class="profileGrid">'+
       '<div class="profileCard little" onclick="selectProfile(\'little\')">'+icon('ic-mascot-train')+
-        '<div class="pName">'+CONFIG.profiles.little.name+'</div></div>'+
+        '<div class="pName">'+CONFIG.profiles.little.name+'</div><div class="pZh">Let\'s ride and read!</div></div>'+
       '<div class="profileCard big" onclick="selectProfile(\'big\')">'+icon('ic-mascot-princess')+
-        '<div class="pName">'+CONFIG.profiles.big.name+'</div></div>'+
+        '<div class="pName">'+CONFIG.profiles.big.name+'</div><div class="pZh">Let\'s play with words!</div></div>'+
     '</div></div>';
 }
 
 /* ---------------- home: choose a game ---------------- */
 function viewHome(){
   const p=currentProfile();
+  const pending=ticketsPending();
+  const flavors={phonics:'Pop sound bubbles', sentence:'Build a silly sentence', fill:'Find the missing word'};
+  const mini={phonics:'Sounds, families, blends', sentence:'Tap the words in order', fill:'Read and choose'};
   const cards=CATEGORIES.map(c=>{
     let done=0, stars=0;
     for(let i=0;i<setCount(c.id);i++){ const r=getResult(c.id,i); if(r){ done++; stars+=r.stars; } }
+    const total=setCount(c.id), pct=total?Math.round((done/total)*100):0;
     return '<div class="gameCard '+c.id+'" onclick="openCategory(\''+c.id+'\')">'+
       '<div class="gameIcon">'+icon(c.icon)+'</div>'+
-      '<div class="gameText"><div class="gameName">'+c.en+'</div>'+
+      '<div class="gameText"><div class="gameName">'+c.en+'<small>'+mini[c.id]+'</small></div>'+
       '<div class="gameHint">'+c.hint+'</div>'+
-      '<div class="gameMeta">'+done+' / '+setCount(c.id)+' sets · '+stars+' stars</div></div>'+
-      '<div class="gameGo">▶</div></div>';
+      '<div class="gameFlavor">✨ <b>'+flavors[c.id]+'</b></div>'+
+      '<div class="gameProgress"><span style="width:'+pct+'%"></span></div>'+
+      '<div class="gameMeta"><span>'+done+' / '+total+' sets</span><span>'+stars+' stars</span></div></div>'+
+      '<div class="gameGo" aria-hidden="true">→</div></div>';
   }).join('');
   return topBar(p.name, 'goPicker()')+
-    '<div class="screen">'+
-      '<div class="mascotBanner">'+icon(p.mascot)+'<div><div class="bannerBig">Choose a game!</div>'+
-      '<div class="sub">'+state.data.totalStars+' stars · '+state.data.streak+' day streak</div></div></div>'+
+    '<div class="screen homeScreen">'+
+      '<div class="mascotBanner">'+icon(p.mascot)+'<div><div class="bannerBig">Hi '+p.name+'! Let\'s go on a word adventure!<small>Pick a game and collect stars, badges, and fun rewards.</small></div>'+
+      '<div class="heroStats">'+
+        '<span class="heroStat">'+icon('ic-star','sm')+' '+state.data.totalStars+' stars</span>'+
+        '<span class="heroStat">🔥 '+state.data.streak+' day streak</span>'+
+        '<span class="heroStat '+(pending>0?'ticketReady':'')+'">'+icon('ic-ticket','sm')+' '+(pending>0?pending+' ticket ready':'next ticket in '+roundsToNextTicket())+'</span>'+
+      '</div></div></div>'+
       cards+
       '<button class="btn btn-secondary btn-wide" onclick="state.screen=\'progress\';render()">See my progress</button>'+
+      '<div class="homeBottomPrompt">🌟 <span><b>Tip:</b> try a new set to unlock more badges and collect more stars!</span></div>'+
     '</div>';
 }
 
@@ -2062,7 +2506,7 @@ function viewSets(){
     '</div>';
   }
   return topBar(cat.en, 'goHome()')+
-    '<div class="screen"><p class="sub center-text">Pick a set — 10 questions each. You can replay any set any time.</p>'+
+    '<div class="screen setsScreen"><p class="sub center-text">Pick a set — 10 questions each. You can replay any set any time.</p>'+
     '<div class="setGrid">'+grid+'</div></div>';
 }
 
@@ -2101,13 +2545,13 @@ function viewPlay(){
   const teach = state.teaching ? viewTeaching() : '';
   const hint = '<div class="kbdHint">Keyboard: press <b>1</b> <b>2</b> <b>3</b> to answer · '+
                '<b>Space</b> to hear it again</div>';
-  return head+journeyStrip()+'<div class="screen">'+body+hint+'</div>'+teach;
+  return head+journeyStrip()+'<div class="screen playScreen">'+body+hint+'</div>'+teach;
 }
 
 function viewTravel(){
   const j=state.journey || journeyFor(0);   // fallback if no round is active
   const next=j.stops[Math.min(state.qIndex+1,j.stops.length-1)];
-  return '<div class="screen center travelScreen">'+
+  return '<div class="screen center travelScreen travelView">'+
     '<div class="travelStage">'+
       '<div class="travelMascot">'+icon(currentProfile().mascot)+'</div>'+
       '<div class="travelGround"></div>'+
@@ -2124,7 +2568,7 @@ function viewBuild(q){
     return '<button class="bubble'+(chosen?' chosen':'')+'" onclick="answerChoice(\''+c+'\')">'+c+'</button>';
   }).join('');
   const pic = q.icon ? '<div class="picRound">'+icon(q.icon)+'</div>' : '';
-  return '<div class="qCard phonicsCard">'+
+  return '<div class="qCard phonicsCard soundBuildCard">'+
     '<div class="qLabel">Which sound starts this word?</div>'+
     pic+
     '<div class="wordSlots">'+
@@ -2170,7 +2614,7 @@ function viewSoundQ(q){
   const opts = q.choices.map(c=>
     '<button class="bubble'+(solved&&c===q.answer?' chosen':'')+'" onclick="answerChoice(\''+c+'\')">'+c+'</button>'
   ).join('');
-  return '<div class="qCard phonicsCard">'+
+  return '<div class="qCard phonicsCard soundBuildCard">'+
     '<div class="qLabel">'+q.label+'</div>'+
     pic+
     '<div class="wordSlots">'+pre+gap+post+'</div>'+
@@ -2270,23 +2714,28 @@ function viewTeachingSound(t){
 function viewResult(){
   const score=state.correctCount, stars=starsFor(score);
   let s=''; for(let k=0;k<3;k++) s+=icon(k<stars?'ic-star':'ic-star-empty','lg');
-  const j=state.journey || journeyFor(0);   // fallback if no round is active
+  const j=state.journey || journeyFor(0);
   const nm = currentProfile().name;
   const msg = stars===3?'Perfect journey, '+nm+'!' : stars===2?'Great work, '+nm+'!'
             : stars===1?'Good try, '+nm+'!' : 'Let\'s try again, '+nm+'!';
-  return '<div class="screen center">'+
+  const cheerTitle = stars===3 ? 'Superstar reader!' : stars===2 ? 'You did amazing!' : stars===1 ? 'Nice job!' : 'Keep going!';
+  const cheerText = stars===3 ? 'You zoomed through every question and picked up all the stars.'
+    : stars===2 ? 'You answered lots of questions correctly and made awesome progress.'
+    : stars===1 ? 'You finished the set and earned a star. Practice makes you stronger every time.'
+    : 'You were brave and kept playing. Let\'s have another fun try!';
+  return '<div class="screen center resultScreen">'+
     '<div class="mascotBig">'+icon(currentProfile().mascot)+'</div>'+
     '<h1>'+msg+'</h1>'+
     '<div class="starRow">'+s+'</div>'+
-    '<div class="scoreLine">'+score+' / '+state.questions.length+' first-try correct</div>'+
-    '<div class="routeDone">You travelled '+j.name+'<br><b>'+j.stops[0]+'</b> → <b>'+j.stops[j.stops.length-1]+'</b></div>'+
+    '<div class="resultCelebrate"><h3>'+cheerTitle+'</h3><p>'+cheerText+'</p></div>'+
+    '<div class="rewardPills">'+
+      '<span class="rewardPill">'+icon('ic-star','sm')+' '+score+' / '+state.questions.length+' first-try correct</span>'+
+      '<span class="rewardPill">🗺️ Finished '+j.name+'</span>'+
+      '<span class="rewardPill">🏁 '+j.stops[0]+' → '+j.stops[j.stops.length-1]+'</span>'+
+    '</div>'+
     (state.awardedTicket
-       ? '<div class="ticketWon">'+icon('ic-ticket')+
-         '<div><b>You earned a Video Time Ticket!</b><br>'+
-         'Go to My Progress and show it to an adult.</div></div>'
-       : '<div class="ticketSoon">'+roundsToNextTicket()+
-         ' more '+(roundsToNextTicket()===1?'exercise':'exercises')+
-         ' to earn a Video Time Ticket</div>')+
+       ? '<div class="ticketWon">'+icon('ic-ticket')+'<div><b>You earned a Video Time Ticket!</b><br>Go to My Progress and show it to an adult.</div></div>'
+       : '<div class="ticketSoon">'+roundsToNextTicket()+' more '+(roundsToNextTicket()===1?'exercise':'exercises')+' to earn a Video Time Ticket</div>')+
     '<div class="btnRow"><button class="btn btn-secondary" onclick="replayRound()">Play again</button>'+
     '<button class="btn btn-secondary" onclick="nextSet()">Next set</button></div>'+
     '<button class="btn btn-secondary btn-wide" onclick="goHome()">Back to games</button>'+
@@ -2349,7 +2798,7 @@ function viewProgress(){
     : '<span class="sub">Nothing tricky yet — keep playing!</span>';
 
   return topBar('My Progress','goHome()')+
-    '<div class="screen">'+
+    '<div class="screen progressScreen">'+
       '<div class="cheerCard">'+
         '<div class="cheerMascot">'+icon(p.mascot)+'</div>'+
         '<div class="cheerText"><div class="cheerBig">'+cheer+'</div>'+
@@ -2425,7 +2874,7 @@ function ticketCardHtml(){
 }
 
 function viewMenu(){
-  return '<div class="menuOverlay" onclick="if(event.target===this) toggleMenu(false)"><div class="menuSheet">'+
+  return '<div class="menuOverlay" onclick="if(event.target===this) toggleMenu(false)"><div class="menuSheet"><div class="sheetHandle"></div>'+
     '<h2>Menu</h2>'+
     (state.profileId? '<button class="btn btn-secondary btn-wide" onclick="toggleMenu(false);state.screen=\'progress\';render()">My progress</button>':'')+
     '<button class="btn btn-secondary btn-wide" onclick="exportData()">Export progress (backup)</button>'+
